@@ -182,4 +182,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHP: 1
   currentHP: 0
-  speed: 5
+  speed: 3

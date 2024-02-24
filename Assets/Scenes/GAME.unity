@@ -1457,8 +1457,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyPrefab: {fileID: 6187920690788463259, guid: 7cc2db0370cddc04f84920e519ed927f,
     type: 3}
-  spawnInterval: 2
-  spawnRadius: 60
+  spawnInterval: 3
+  spawnRadius: 100
 --- !u!114 &1065070315
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1846,6 +1846,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f42f7ae5834be534c8d91747f120ec37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerOrientation: {x: 0, y: 0, z: 0}
   cameraHolder: {fileID: 1881368531}
   playerHand: {fileID: 1649446099}
   sensitivity: 0.15
