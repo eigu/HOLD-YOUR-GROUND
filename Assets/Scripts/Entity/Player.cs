@@ -1,12 +1,12 @@
 public class Player : Entity
 {
-  public int CurrentSP { get; set; }
+  public int KillCount { get; set; }
 
   protected override void Start()
   {
     base.Start();
 
-    CurrentSP = 0;
+    KillCount = 0;
   }
 
   protected override void Update()
@@ -14,8 +14,11 @@ public class Player : Entity
     base.Update();
   }
 
-  public void AddSP(int sp)
+  public void AddSP(int point)
   {
-    CurrentSP += sp;
+    if (KillCount < 6)
+    {
+      KillCount += point;
+    }
   }
 }

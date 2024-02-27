@@ -24,7 +24,7 @@ public class Enemy : Entity
   {
     if (player != null)
     {
-      transform.position = Vector3.MoveTowards(transform.position, player.position, Time.deltaTime * speed);
+      transform.position = Vector3.MoveTowards(transform.position, player.position, Time.deltaTime * _speed);
     }
   }
 }

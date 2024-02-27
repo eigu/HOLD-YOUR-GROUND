@@ -29,15 +29,15 @@ public class PlayerLook : MonoBehaviour
     mouseDelta *= sensitivity;
     smoothedDelta = Vector2.Lerp(smoothedDelta, mouseDelta, 1f / smoothing);
 
-    if (playerPowerUp.lockedEnemy == null)
+    if (playerPowerUp.LockedEnemy == null)
     {
       playerOrientation.x += mouseDelta.x;
       playerOrientation.y -= mouseDelta.y;
     }
     
-    if (playerPowerUp.lockedEnemy != null)
+    if (playerPowerUp.LockedEnemy != null)
     {
-      var lockedEnemyPosition = playerPowerUp.lockedEnemy.transform.position;
+      var lockedEnemyPosition = playerPowerUp.LockedEnemy.transform.position;
       Vector3 lookDirection = lockedEnemyPosition - transform.position;
       Quaternion horizontalRotation = Quaternion.LookRotation(new Vector3(lookDirection.x, 0, lookDirection.z));
 

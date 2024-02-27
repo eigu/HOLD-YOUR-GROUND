@@ -5,43 +5,37 @@ public class InputManager : MonoBehaviour
 {
   public static InputManager Instance { get; private set; }
 
-  PlayerInput playerInput;
+  private PlayerInput m_playerInput;
 
   private void Awake()
   {
-    if (Instance == null)
-    {
-      Instance = this;
-    }
-    else if (Instance != this)
-    {
-      Destroy(this);
-    }
+    if (Instance == null) Instance = this;
+    else if (Instance != this) Destroy(this);
   }
 
   private void Start()
   {
 
-    playerInput = GetComponent<PlayerInput>();
+    m_playerInput = GetComponent<PlayerInput>();
   }
 
   public Vector2 GetMouseDelta()
   {
-    InputAction playerLook = playerInput.actions.FindAction("Look");
+    InputAction playerLook = m_playerInput.actions.FindAction("Look");
 
     return playerLook.ReadValue<Vector2>();
   }
 
   public bool CheckIfPlayerIsShooting()
   {
-    InputAction playerShoot = playerInput.actions.FindAction("Shoot");
+    InputAction playerShoot = m_playerInput.actions.FindAction("Shoot");
 
     return playerShoot.triggered;
   }
 
   public bool CheckIfPlayerIsUsingPowerUp()
   {
-    InputAction playerPowerUp = playerInput.actions.FindAction("PowerUp");
+    InputAction playerPowerUp = m_playerInput.actions.FindAction("PowerUp");
 
     return playerPowerUp.triggered;
   }

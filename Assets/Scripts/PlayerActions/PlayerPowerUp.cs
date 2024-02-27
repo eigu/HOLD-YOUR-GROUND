@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public enum PowerUpList
 {
@@ -10,58 +11,74 @@ public enum PowerUpList
 [System.Serializable]
 public class PowerUpInfo
 {
-  public PowerUpList type;
-  public GameObject hud;
-  public float duration;
-  public int cost;
+  public PowerUpList        Type;
+  public GameObject         HUD;
+  public GameObject         Button;
+  public float              Duration;
+  public int                Cost;
 }
 
 public class PlayerPowerUp : MonoBehaviour
 {
-  private Player player;
+  private Player            m_player;
 
-  [SerializeField] private PowerUpList currentPowerUp;
-  [SerializeField] private List<PowerUpInfo> powerUpInfoList;
-  private PowerUpInfo currentPowerUpInfo;
-  private float powerUpTimer;
-  private bool isUsingPowerUp = false;
+  [SerializeField]
+  private PowerUpList       _currentPowerUp;
+  [SerializeField]
+  private List<PowerUpInfo> _powerUpInfoList;
 
-  [SerializeField] private float autoAimRadius;
-  public Transform lockedEnemy;
+  private PowerUpInfo       m_currentPowerUpInfo;
+  private float             m_powerUpTimer;
+  private bool              m_isUsingPowerUp = false;
 
+  [SerializeField]
+  private float             _autoAimRadius;
+  
+  public Transform          LockedEnemy;
 
   private void Start()
   {
-    currentPowerUpInfo = powerUpInfoList.Find(info => info.type == currentPowerUp);
+    m_currentPowerUpInfo = _powerUpInfoList.Find(info => info.Type == _currentPowerUp);
 
-    player = FindObjectOfType<Player>();
+    m_player = FindObjectOfType<Player>();
   }
 
   private void Update()
   {
-    powerUpTimer -= Time.deltaTime;
+    m_powerUpTimer -= Time.deltaTime;
 
+    ShowButton();
+    
     PowerUp();
+  }
+
+  private void ShowButton()
+  {
+    if (m_player.KillCount == m_currentPowerUpInfo.Cost)
+    {
+      m_currentPowerUpInfo.Button.SetActive(true);
+    }
   }
 
   private void PowerUp()
   {
     if (!InputManager.Instance.CheckIfPlayerIsUsingPowerUp()) return;
-    if (isUsingPowerUp) return;
-    if (player.CurrentSP < currentPowerUpInfo.cost) return;
+    if (m_isUsingPowerUp) return;
+    if (m_player.KillCount < m_currentPowerUpInfo.Cost) return;
 
-    player.CurrentSP -= currentPowerUpInfo.cost;
+    m_player.KillCount -= m_currentPowerUpInfo.Cost;
 
-    ActivatePowerUp(currentPowerUp.ToString());
+    ActivatePowerUp(_currentPowerUp.ToString());
   }
 
   private void ActivatePowerUp(string methodName)
   {
-    isUsingPowerUp = true;
-    currentPowerUpInfo.hud.SetActive(true);
+    m_isUsingPowerUp = true;
+    m_currentPowerUpInfo.HUD.SetActive(true);
+    m_currentPowerUpInfo.Button.SetActive(false);
 
-    powerUpTimer = currentPowerUpInfo.duration;
-    StartCoroutine(UsingPowerUp(methodName, currentPowerUpInfo.duration));
+    m_powerUpTimer = m_currentPowerUpInfo.Duration;
+    StartCoroutine(UsingPowerUp(methodName, m_currentPowerUpInfo.Duration));
   }
 
   private IEnumerator UsingPowerUp(string methodName, float duration)
@@ -81,13 +98,13 @@ public class PlayerPowerUp : MonoBehaviour
   private IEnumerator DisablePowerUp(float duration)
   {
     yield return new WaitForSeconds(duration);
-    isUsingPowerUp = false;
-    currentPowerUpInfo.hud.SetActive(false);
+    m_isUsingPowerUp = false;
+    m_currentPowerUpInfo.HUD.SetActive(false);
   }
 
   private void AutoAim()
   {
-    Collider[] colliders = Physics.OverlapSphere(transform.position, autoAimRadius);
+    Collider[] colliders = Physics.OverlapSphere(transform.position, _autoAimRadius);
     float closestDistance = Mathf.Infinity;
     Transform closestEnemy = null;
 
@@ -106,11 +123,11 @@ public class PlayerPowerUp : MonoBehaviour
 
     if (closestEnemy != null)
     {
-      lockedEnemy = closestEnemy;
+      LockedEnemy = closestEnemy;
     }
     else
     {
-      lockedEnemy = null;
+      LockedEnemy = null;
     }
   }
 }

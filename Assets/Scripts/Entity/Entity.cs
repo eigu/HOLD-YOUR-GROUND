@@ -1,23 +1,20 @@
-using System.Collections;
 using UnityEngine;
 
 public class Entity : MonoBehaviour
 {
-  [SerializeField]
-  protected private int maxHP;
+  public int MaxHP;
   public int CurrentHP
   {
-    get { return maxHP; }
-    set { maxHP = value; }
+    get { return MaxHP; }
+    set { MaxHP = value; }
   }
 
   [SerializeField]
-  protected float speed;
-
+  protected private float _speed;
 
   protected virtual void Start()
   {
-    CurrentHP = maxHP;
+
   }
 
   protected virtual void Update()

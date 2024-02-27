@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using TMPro;
 
 public class UIManager : MonoBehaviour
@@ -8,19 +8,22 @@ public class UIManager : MonoBehaviour
 
   private Player playerEntity;
 
-  [SerializeField] private TextMeshProUGUI playerHPText;
-  [SerializeField] private TextMeshProUGUI playerSPText;
-  [SerializeField] private GameObject gameOverScreen;
+  [SerializeField]
+  private TextMeshProUGUI _playerHPText;
+  [SerializeField]
+  public Image            _playerHPBar;
+  [SerializeField]
+  private Image[]         _killCount;
+
+  private float lerpSpeed;
+
+  [SerializeField]
+  private GameObject gameOverScreen;
+
   private void Awake()
   {
-    if (Instance == null)
-    {
-      Instance = this;
-    }
-    else if (Instance != this)
-    {
-      Destroy(this);
-    }
+    if (Instance == null) Instance = this;
+    else if (Instance != this) Destroy(this);
   }
 
   private void Start()
@@ -29,19 +32,25 @@ public class UIManager : MonoBehaviour
 
     Time.timeScale = 1;
 
+    lerpSpeed = 3f * Time.deltaTime;
+
     HideCursor();
   }
 
   private void Update()
   {
     UpdatePlayerUI(playerEntity);
+
     ShowPlayerDeathUI();
   }
 
   private void UpdatePlayerUI(Player playerScript)
   {
-    playerHPText.text = "HP: " + playerScript.CurrentHP;
-    playerSPText.text = "SP: " + playerScript.CurrentSP;
+    _playerHPText.text = "HP: " + playerScript.CurrentHP;
+
+    HealthBarFiller();
+    ColorChanger();
+    KillCounterFiller();
   }
 
   private void ShowPlayerDeathUI()
@@ -49,15 +58,35 @@ public class UIManager : MonoBehaviour
     if (!playerEntity)
     {
       Time.timeScale = 0;
-      playerHPText.gameObject.SetActive(false);
+      _playerHPText.gameObject.SetActive(false);
       gameOverScreen.SetActive(true);
       ShowCursor();
     }
   }
 
-  public void RestartButton()
+  void HealthBarFiller()
   {
-    SceneManager.LoadScene("Game");
+    _playerHPBar.fillAmount = Mathf.Lerp(_playerHPBar.fillAmount, (playerEntity.CurrentHP / playerEntity.MaxHP), lerpSpeed);
+  }
+
+  void ColorChanger()
+  {
+    Color healthColor = Color.Lerp(Color.red, Color.green, (playerEntity.CurrentHP / playerEntity.MaxHP));
+    _playerHPBar.color = healthColor;
+    _playerHPText.color = healthColor;
+  }
+
+  private void KillCounterFiller()
+  {
+    for (int i = 0; i < _killCount.Length; i++)
+    {
+      _killCount[i].enabled = !DisplayKillCounter(playerEntity.KillCount, i);
+    }
+  }
+
+  private bool DisplayKillCounter(float killCount, int pointNumber)
+  {
+    return ((pointNumber) >= killCount);
   }
 
   private void HideCursor()
