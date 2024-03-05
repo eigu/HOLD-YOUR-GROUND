@@ -4,36 +4,38 @@ using TMPro;
 
 public class UIManager : MonoBehaviour
 {
-  public static UIManager Instance { get; private set; }
+    public static UIManager Instance { get; private set; }
 
-  private Player playerEntity;
+    private Player playerEntity;
+    [SerializeField] private IntVariableSO KillCount;
+    [SerializeField] private PowerUpInfoSO PowerUpInfo;
 
-  [SerializeField]
-  private TextMeshProUGUI _playerHPText;
-  [SerializeField]
-  public Image            _playerHPBar;
-  [SerializeField]
-  private Image[]         _killCount;
+    [SerializeField] private TextMeshProUGUI _playerHPText;
+    [SerializeField] public Image _playerHPBar;
 
-  private float lerpSpeed = 3f;
+    [SerializeField] private Image[] _killCountBar;
+    [SerializeField] private GameObject _powerUpButton;
+    [SerializeField] private GameObject _powerUpHUD;
 
-  [SerializeField]
-  private GameObject gameOverScreen;
+    private float lerpSpeed = 3f;
 
-  private void Awake()
-  {
-    if (Instance == null) Instance = this;
-    else if (Instance != this) Destroy(this);
-  }
+    [SerializeField]
+    private GameObject gameOverScreen;
 
-  private void Start()
-  {
-    playerEntity = FindObjectOfType<Player>();
+    private void Awake()
+    {
+        if (Instance == null) Instance = this;
+        else if (Instance != this) Destroy(this);
+    }
 
-    Time.timeScale = 1;
+    private void Start()
+    {
+        playerEntity = FindObjectOfType<Player>();
 
-    HideCursor();
-  }
+        Time.timeScale = 1;
+
+        HideCursor();
+    }
 
     private void Update()
     {
@@ -78,28 +80,36 @@ public class UIManager : MonoBehaviour
         _playerHPBar.color = healthColor;
     }
 
-  private void KillCounterFiller()
-  {
-    for (int i = 0; i < _killCount.Length; i++)
+    private void KillCounterFiller()
     {
-      _killCount[i].enabled = !DisplayKillCounter(playerEntity.KillCount, i);
+        for (int i = 0; i < _killCountBar.Length; i++)
+        {
+            _killCountBar[i].enabled = !DisplayKillCounter(KillCount.Value, i);
+        }
+
+        if (KillCount.Value >= PowerUpInfo.Cost) _powerUpButton.SetActive(true);
+        if (KillCount.Value < PowerUpInfo.Cost) _powerUpButton.SetActive(false);
     }
-  }
 
-  private bool DisplayKillCounter(float killCount, int pointNumber)
-  {
-    return (pointNumber >= killCount);
-  }
+    public void PowerUpUI()
+    {
+        _powerUpHUD.SetActive(true);
+    }
 
-  private void HideCursor()
-  {
-    Cursor.lockState = CursorLockMode.Locked;
-    Cursor.visible = false;
-  }
+    private bool DisplayKillCounter(float killCount, int pointNumber)
+    {
+        return (pointNumber >= killCount);
+    }
 
-  private void ShowCursor()
-  {
-    Cursor.lockState = CursorLockMode.None;
-    Cursor.visible = true;
-  }
+    private void HideCursor()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
+
+    private void ShowCursor()
+    {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
 }
