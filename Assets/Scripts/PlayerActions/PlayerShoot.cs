@@ -19,7 +19,7 @@ public class PlayerShoot : MonoBehaviour
 
     private void Shoot()
     {
-        LayerMask enemyLayerMask = LayerMask.GetMask("Enemy");
+        LayerMask enemyLayerMask = LayerMask.GetMask("EnemyLayer");
         Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         RaycastHit hit;
 

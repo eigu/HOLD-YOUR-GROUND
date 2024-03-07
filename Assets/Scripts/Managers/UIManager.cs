@@ -1,14 +1,15 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections;
 
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
 
-    private Player playerEntity;
-    [SerializeField] private IntVariableSO KillCount;
-    [SerializeField] private PowerUpInfoSO PowerUpInfo;
+    private Player m_playerEntity;
+    [SerializeField] private IntVariableSO _killCount;
+    [SerializeField] private PowerUpInfoSO _powerUpInfo;
 
     [SerializeField] private TextMeshProUGUI _playerHPText;
     [SerializeField] public Image _playerHPBar;
@@ -30,7 +31,7 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
-        playerEntity = FindObjectOfType<Player>();
+        m_playerEntity = FindObjectOfType<Player>();
 
         Time.timeScale = 1;
 
@@ -41,7 +42,7 @@ public class UIManager : MonoBehaviour
     {
         ShowPlayerDeathUI();
 
-        UpdatePlayerUI(playerEntity);
+        UpdatePlayerUI(m_playerEntity);
     }
 
     private void UpdatePlayerUI(Player playerScript)
@@ -55,7 +56,7 @@ public class UIManager : MonoBehaviour
 
     private void ShowPlayerDeathUI()
     {
-        if (playerEntity.CurrentHP <= 0)
+        if (m_playerEntity.CurrentHP <= 0)
         {
             Time.timeScale = 0;
             _playerHPText.gameObject.SetActive(false);
@@ -66,14 +67,14 @@ public class UIManager : MonoBehaviour
 
     private void HealthBarFiller()
     {
-        float healthPercentage = (float)playerEntity.CurrentHP / (float)playerEntity.MaxHP;
+        float healthPercentage = (float)m_playerEntity.CurrentHP / (float)m_playerEntity.MaxHP;
 
         _playerHPBar.fillAmount = Mathf.Lerp(_playerHPBar.fillAmount, healthPercentage, lerpSpeed * Time.deltaTime);
     }
 
     private void ColorChanger()
     {
-        float healthPercentage = (float)playerEntity.CurrentHP / (float)playerEntity.MaxHP;
+        float healthPercentage = (float)m_playerEntity.CurrentHP / (float)m_playerEntity.MaxHP;
 
         Color healthColor = Color.Lerp(Color.red, Color.green, healthPercentage);
 
@@ -84,16 +85,31 @@ public class UIManager : MonoBehaviour
     {
         for (int i = 0; i < _killCountBar.Length; i++)
         {
-            _killCountBar[i].enabled = !DisplayKillCounter(KillCount.Value, i);
+            _killCountBar[i].enabled = !DisplayKillCounter(_killCount.Value, i);
         }
 
-        if (KillCount.Value >= PowerUpInfo.Cost) _powerUpButton.SetActive(true);
-        if (KillCount.Value < PowerUpInfo.Cost) _powerUpButton.SetActive(false);
+        if (_killCount.Value >= _powerUpInfo.Cost) _powerUpButton.SetActive(true);
+        if (_killCount.Value < _powerUpInfo.Cost) _powerUpButton.SetActive(false);
     }
 
     public void PowerUpUI()
     {
+        StartCoroutine(PowerUpCoroutine(_powerUpInfo.Duration));
+    }
+
+    private IEnumerator PowerUpCoroutine(float duration)
+    {
         _powerUpHUD.SetActive(true);
+
+        float time = duration;
+        while (time > 0)
+        {
+            _powerUpHUD.GetComponent<Image>().fillAmount = time / duration;
+            time -= Time.deltaTime;
+            yield return null;
+        }
+
+        _powerUpHUD.SetActive(false);
     }
 
     private bool DisplayKillCounter(float killCount, int pointNumber)

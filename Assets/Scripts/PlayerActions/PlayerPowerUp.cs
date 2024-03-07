@@ -44,7 +44,6 @@ public class PlayerPowerUp : MonoBehaviour
             yield return null;
         }
 
-        yield return new WaitForSeconds(duration);
         m_isPoweringUp = false;
     }
 }
