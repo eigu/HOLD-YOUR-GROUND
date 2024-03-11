@@ -5,7 +5,7 @@ public class PlayerPowerUp : MonoBehaviour
 {
     [SerializeField] private IntReference _killCount;
 
-    [SerializeField] private PowerUpInfoSO _currentPowerUpInfo;
+    [SerializeField] private PowerUpInfo _currentPowerUpInfo;
 
     private bool m_isPoweringUp = false;
 

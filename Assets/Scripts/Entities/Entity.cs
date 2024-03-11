@@ -26,11 +26,13 @@ public class Entity : MonoBehaviour
         }
     }
 
-  private void OnTriggerEnter(Collider other)
-  {
-    if (other.tag == gameObject.tag
-      || other.CompareTag("Ground")) return;
-    
-    DamageEntity(1);
-  }
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player")) DamageEntity(100);
+
+        if (other.tag == gameObject.tag
+            || other.CompareTag("Ground")) return;
+
+        DamageEntity(1);
+    }
 }
