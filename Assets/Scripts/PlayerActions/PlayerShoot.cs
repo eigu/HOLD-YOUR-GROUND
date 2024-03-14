@@ -10,7 +10,6 @@ public class PlayerShoot : MonoBehaviour
     private float m_timeToShoot;
 
     [SerializeField] private Transform _muzzle;
-    [SerializeField] private ParticleSystem _muzzleFlash;
     [SerializeField] private ParticleSystem _impact;
     [SerializeField] private TrailRenderer _tracer;
     [SerializeField] private float _tracerSpeed;
@@ -19,6 +18,8 @@ public class PlayerShoot : MonoBehaviour
     [SerializeField] private GameEventSO _onHeadTargetted;
     [SerializeField] private GameEventSO _onBodyTargetted;
     [SerializeField] private GameEventSO _onNothingTargetted;
+
+    [SerializeField] private PlayerShake _playerShake;
 
     private void Start()
     {
@@ -66,9 +67,10 @@ public class PlayerShoot : MonoBehaviour
 
         _onPlayerShoot?.TriggerEvent();
 
-        m_timeToShoot = _fireRate;
+        Ray shakeDirection = new(Camera.main.transform.position, Camera.main.transform.forward);
+        _playerShake.ScreenShake(shakeDirection.direction);
 
-        _muzzleFlash.Play();
+        m_timeToShoot = _fireRate;
 
         TrailRenderer tracer = Instantiate(_tracer, _muzzle.position, Quaternion.identity);
 
