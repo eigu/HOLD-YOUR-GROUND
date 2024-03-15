@@ -5,8 +5,8 @@ public class PlayerShake : MonoBehaviour
 {
     [SerializeField] private CinemachineImpulseSource _screenShake;
 
-    public void ScreenShake(Vector3 direction)
+    public void ScreenShake()
     {
-        _screenShake.GenerateImpulseWithVelocity(direction);
+        _screenShake.GenerateImpulse();
     }
 }

@@ -38,22 +38,32 @@ public class PlayerShoot : MonoBehaviour
         Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         RaycastHit hit;
 
-        if (!Physics.Raycast(ray, out hit, Mathf.Infinity)) return;
+        if (!Physics.Raycast(ray, out hit, Mathf.Infinity))
+        {
+            hit.point = ray.origin + ray.direction * 1000f;
+        }
 
-        if (!hit.collider.CompareTag("EnemyHead") ||
-            !hit.collider.CompareTag("EnemyBody"))
+        if (hit.collider != null)
+        {
+            if (!hit.collider.CompareTag("EnemyHead") ||
+                !hit.collider.CompareTag("EnemyBody"))
+            {
+                _onNothingTargetted.TriggerEvent();
+            }
+
+            if (hit.collider.CompareTag("EnemyHead"))
+            {
+                _onHeadTargetted.TriggerEvent();
+            }
+
+            if (hit.collider.CompareTag("EnemyBody"))
+            {
+                _onBodyTargetted.TriggerEvent();
+            }
+        }
+        else
         {
             _onNothingTargetted.TriggerEvent();
-        }
-
-        if (hit.collider.CompareTag("EnemyHead"))
-        {
-            _onHeadTargetted.TriggerEvent();
-        }
-
-        if (hit.collider.CompareTag("EnemyBody"))
-        {
-            _onBodyTargetted.TriggerEvent();
         }
 
         Shoot(hit);
@@ -65,19 +75,21 @@ public class PlayerShoot : MonoBehaviour
 
         if (m_timeToShoot > 0) return;
 
-        _onPlayerShoot?.TriggerEvent();
-
-        Ray shakeDirection = new(Camera.main.transform.position, Camera.main.transform.forward);
-        _playerShake.ScreenShake(shakeDirection.direction);
-
         m_timeToShoot = _fireRate;
 
-        TrailRenderer tracer = Instantiate(_tracer, _muzzle.position, Quaternion.identity);
+        _onPlayerShoot?.TriggerEvent();
 
-        StartCoroutine(SpawnTracer(tracer, hit));
+        SpawnTracer(hit);
     }
 
-    private IEnumerator SpawnTracer(TrailRenderer tracer, RaycastHit hit)
+    public void SpawnTracer(RaycastHit hit)
+    {
+        TrailRenderer tracer = Instantiate(_tracer, _muzzle.position, Quaternion.identity);
+
+        StartCoroutine(MoveTracer(tracer, hit));
+    }
+
+    private IEnumerator MoveTracer(TrailRenderer tracer, RaycastHit hit)
     {
         float distance = Vector3.Distance(tracer.transform.position, hit.point);
         float duration = distance / _tracerSpeed;
@@ -93,9 +105,16 @@ public class PlayerShoot : MonoBehaviour
 
         tracer.transform.position = hit.point;
 
-        Instantiate(_impact, hit.point, Quaternion.LookRotation(hit.normal));
+        if (hit.collider != null)
+        {
+            Instantiate(_impact, hit.point, Quaternion.LookRotation(hit.normal));
 
-        DamageEnemy(hit.collider);
+            if (hit.collider.CompareTag("EnemyHead") ||
+                hit.collider.CompareTag("EnemyBody"))
+            {
+                DamageEnemy(hit.collider);
+            }
+        }
 
         Destroy(tracer.gameObject, tracer.time);
     }
@@ -106,8 +125,9 @@ public class PlayerShoot : MonoBehaviour
 
         if (enemy == null) return;
 
+        if (collider.CompareTag("EnemyHead")) enemy.DamageEntity(_headDamage);
+
         if (collider.CompareTag("EnemyBody")) enemy.DamageEntity(_bodyDamage);
 
-        if (collider.CompareTag("EnemyHead")) enemy.DamageEntity(_headDamage);
     }
 }

@@ -11,11 +11,6 @@ public class Player : Entity
         KillCount.Value = 0;
     }
 
-    protected override void Update()
-    {
-        base.Update();
-    }
-
     public void AddSP(int point)
     {
         if (KillCount.Value < 6)

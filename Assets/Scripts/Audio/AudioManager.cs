@@ -26,9 +26,14 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    public void PlaySFX(string name)
+    public void PlaySFX(string names)
     {
-        Sound sound = _sfxSounds.Find(s => s.Name == name);
+        string[] nameArray = names.Split(',');
+
+        int randomIndex = Random.Range(0, nameArray.Length);
+        string randomName = nameArray[randomIndex].Trim();
+
+        Sound sound = _sfxSounds.Find(s => s.Name == randomName);
 
         if (sound != null)
         {

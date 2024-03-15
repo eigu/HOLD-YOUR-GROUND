@@ -5075,7 +5075,6 @@ Transform:
   m_Children:
   - {fileID: 183282967704429475}
   - {fileID: 4326299352092553598}
-  - {fileID: 4549293639103329662}
   - {fileID: 1441547914349210613}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -5155,13 +5154,14 @@ MonoBehaviour:
   _headDamage: 10
   _fireRate: 0.3
   _muzzle: {fileID: 7505998212313147011}
-  _muzzleFlash: {fileID: 2755037987756158328}
   _impact: {fileID: 9064919875212695174, guid: a5e1e2c4d2cd81f4abed6272a2b8187a, type: 3}
   _tracer: {fileID: 328621789431213768, guid: 43559d27d223bf340b413fde1315c256, type: 3}
   _tracerSpeed: 150
   _onPlayerShoot: {fileID: 11400000, guid: bb0b339e2cb763e4e81c3307cd9910fd, type: 2}
-  _onEnemyTargetted: {fileID: 0}
-  _onNoEnemyTargetted: {fileID: 0}
+  _onHeadTargetted: {fileID: 0}
+  _onBodyTargetted: {fileID: 0}
+  _onNothingTargetted: {fileID: 0}
+  _playerShake: {fileID: 0}
 --- !u!114 &8835686245748452047
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5208,6 +5208,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 4549293639103329662}
   - {fileID: 337244584518538122}
   m_Father: {fileID: 6249024594989334349}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -5235,13 +5236,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4300808464267435139}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.25, z: 0.5}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.5, z: 0.25}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1025897907806139722}
-  m_Father: {fileID: 6249024594989334349}
+  m_Father: {fileID: 1441547914349210613}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4349800411644926351
 GameObject:

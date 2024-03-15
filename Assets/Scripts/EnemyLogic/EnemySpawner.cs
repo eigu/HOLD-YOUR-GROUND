@@ -1,40 +1,62 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
 public class EnemySpawner : MonoBehaviour
 {
     [SerializeField] private GameObject _enemyPrefab;
-    [SerializeField] private float _spawnInterval;
+    [SerializeField] private Transform _player;
     [SerializeField] private float _spawnRadius;
+    [SerializeField] private float _spawnInterval;
+    [SerializeField] private float _rampUpRate;
+    [SerializeField] private float _minSpawnInterval;
+    [SerializeField] private float _minPlayerDistance;
 
-    private bool m_hasSpawned = false;
+    private float m_nextSpawnTime;
 
-    private void FixedUpdate()
+    private void Start()
     {
-        Spawn();
+        m_nextSpawnTime = Time.time + _spawnInterval;
     }
 
-    private void Spawn()
+    private void Update()
     {
-        if (m_hasSpawned) return;
-        StartCoroutine(SpawnCoroutine());
-    }
-
-    private IEnumerator SpawnCoroutine()
-    {
-        m_hasSpawned = true;
-
-        Vector3 randomPosition = Random.insideUnitSphere * _spawnRadius;
-        randomPosition.y = 1;
-
-        NavMeshHit hit;
-        if (NavMesh.SamplePosition(transform.position + randomPosition, out hit, _spawnRadius, NavMesh.AllAreas))
+        if (Time.time >= m_nextSpawnTime)
         {
-            Instantiate(_enemyPrefab, hit.position, Quaternion.identity);
-        }
+            Vector3 randomSpawnPos = FindValidSpawnPosition();
+            if (randomSpawnPos != Vector3.zero)
+            {
+                Instantiate(_enemyPrefab, randomSpawnPos, Quaternion.identity);
+            }
 
-        yield return new WaitForSeconds(_spawnInterval);
-        m_hasSpawned = false;
+            _spawnInterval *= _rampUpRate;
+            _spawnInterval = Mathf.Max(_spawnInterval, _minSpawnInterval);
+
+            m_nextSpawnTime = Time.time + _spawnInterval;
+        }
+    }
+
+    private Vector3 FindValidSpawnPosition()
+    {
+        Vector3 randomSpawnPos = Vector3.zero;
+        int attempts = 0;
+        while (attempts < 10)
+        {
+            randomSpawnPos = RandomNavMeshPosition(transform.position, _spawnRadius);
+            if (randomSpawnPos != Vector3.zero && Vector3.Distance(randomSpawnPos, _player.position) >= _minPlayerDistance)
+            {
+                return randomSpawnPos;
+            }
+            attempts++;
+        }
+        return Vector3.zero;
+    }
+
+    private Vector3 RandomNavMeshPosition(Vector3 center, float radius)
+    {
+        Vector3 randomDirection = Random.insideUnitSphere * radius;
+        randomDirection += center;
+        NavMeshHit hit;
+        NavMesh.SamplePosition(randomDirection, out hit, radius, NavMesh.AllAreas);
+        return hit.position;
     }
 }
