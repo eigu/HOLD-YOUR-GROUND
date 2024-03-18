@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -5,58 +6,177 @@ public class EnemySpawner : MonoBehaviour
 {
     [SerializeField] private GameObject _enemyPrefab;
     [SerializeField] private Transform _player;
-    [SerializeField] private float _spawnRadius;
-    [SerializeField] private float _spawnInterval;
-    [SerializeField] private float _rampUpRate;
-    [SerializeField] private float _minSpawnInterval;
-    [SerializeField] private float _minPlayerDistance;
 
-    private float m_nextSpawnTime;
+    [SerializeField] private float _spawnRadius;
+    [SerializeField] private Transform _fallbackPosition;
+
+    [SerializeField] private int _numberPerWave;
+    [SerializeField] private float _spawnInterval;
+    [SerializeField] private float _minSpawnInterval;
+    [SerializeField] private int _numberPerSpawn;
+
+    [SerializeField] private GameEventSO _onWaveEnd;
+    [SerializeField] private GameEventSO _onWaveFiveEnd;
+    [SerializeField] private GameEventSO _onWaveTenEnd;
+
+    private float m_currentSpawnTime;
+    private int m_currentEnemySpawn;
+    private bool m_isWaveInProgress;
+
+    private float m_currentEnemySpeed;
+
+    private bool m_triggeredAtWaveFive = false;
+    private bool m_triggeredAtWaveTen = false;
+
+    public int CurrentEnemiesRemaining { get; private set; }
+    [field: SerializeField] public int CurrentWave { get; private set; }
+    [field: SerializeField] public float WaveDelayTimer { get; private set; }
 
     private void Start()
     {
-        m_nextSpawnTime = Time.time + _spawnInterval;
+        m_currentEnemySpeed = _enemyPrefab.GetComponent<Enemy>().CurrentSpeed;
+
+        StartWave();
     }
 
     private void Update()
     {
-        if (Time.time >= m_nextSpawnTime)
+        if (!m_isWaveInProgress) return;
+
+        m_currentSpawnTime -= Time.deltaTime;
+        
+        if (CurrentEnemiesRemaining <= 0)
+        {
+            StartCoroutine(WaveDelayCoroutine(WaveDelayTimer));
+        }
+
+        if (m_currentSpawnTime <= 0
+            && m_currentEnemySpawn > 0)
+        {
+            SpawnEnemies();
+
+            m_currentSpawnTime = _spawnInterval;
+            m_currentEnemySpawn--;
+        }
+
+        if (CurrentWave % 5 == 0)
+        {
+            if (!m_triggeredAtWaveFive)
+            {
+                _onWaveFiveEnd?.TriggerEvent();
+                m_triggeredAtWaveFive = true;
+            }
+        }
+        else
+        {
+            m_triggeredAtWaveFive = false;
+        }
+
+        if (CurrentWave % 10 == 0)
+        {
+            if (!m_triggeredAtWaveTen)
+            {
+                _onWaveTenEnd?.TriggerEvent();
+                m_triggeredAtWaveTen = true;
+            }
+        }
+        else
+        {
+            m_triggeredAtWaveTen = false;
+        }
+
+    }
+
+    public void StartWave()
+    {
+        CurrentWave++;
+        CurrentEnemiesRemaining = _numberPerWave;
+        m_currentEnemySpawn = _numberPerWave;
+        m_currentSpawnTime = _spawnInterval;
+        m_isWaveInProgress = true;
+    }
+
+    private void OnWaveEnd()
+    {
+        _onWaveEnd?.TriggerEvent();
+    }
+
+    private IEnumerator WaveDelayCoroutine(float duration)
+    {
+        m_isWaveInProgress = false;
+
+        yield return new WaitForSeconds(duration);
+
+        OnWaveEnd();
+    }
+
+    public void SpawnEnemies()
+    {
+        for (int i = 0; i < _numberPerSpawn; i++)
         {
             Vector3 randomSpawnPos = FindValidSpawnPosition();
+
             if (randomSpawnPos != Vector3.zero)
             {
-                Instantiate(_enemyPrefab, randomSpawnPos, Quaternion.identity);
+                GameObject enemyInstance = Instantiate(_enemyPrefab, randomSpawnPos, Quaternion.identity);
+
+                Vector3 directionToPlayer = (_player.position - randomSpawnPos).normalized;
+
+                Quaternion targetRotation = Quaternion.LookRotation(directionToPlayer, Vector3.up);
+
+                enemyInstance.transform.rotation = targetRotation;
+
+                Entity enemyEntity = enemyInstance.GetComponent<Entity>();
+
+                if (enemyEntity != null)
+                {
+                    enemyEntity.CurrentSpeed = m_currentEnemySpeed;
+                }
             }
-
-            _spawnInterval *= _rampUpRate;
-            _spawnInterval = Mathf.Max(_spawnInterval, _minSpawnInterval);
-
-            m_nextSpawnTime = Time.time + _spawnInterval;
         }
     }
 
     private Vector3 FindValidSpawnPosition()
     {
-        Vector3 randomSpawnPos = Vector3.zero;
+        Vector3 bestSpawnPos = _fallbackPosition.position;
+        float bestDistance = Vector3.Distance(bestSpawnPos, _player.position);
+
         int attempts = 0;
-        while (attempts < 10)
+        const int maxAttempts = 10;
+
+        while (attempts < maxAttempts)
         {
-            randomSpawnPos = RandomNavMeshPosition(transform.position, _spawnRadius);
-            if (randomSpawnPos != Vector3.zero && Vector3.Distance(randomSpawnPos, _player.position) >= _minPlayerDistance)
+            Vector3 randomDirection = Random.onUnitSphere * _spawnRadius;
+            randomDirection += transform.position;
+
+            NavMeshHit hit;
+            if (NavMesh.SamplePosition(randomDirection, out hit, _spawnRadius, NavMesh.AllAreas))
             {
-                return randomSpawnPos;
+                float distanceToPlayer = Vector3.Distance(hit.position, _player.position);
+                if (distanceToPlayer > bestDistance)
+                {
+                    bestSpawnPos = hit.position;
+                    bestDistance = distanceToPlayer;
+                }
             }
+
             attempts++;
         }
-        return Vector3.zero;
+
+        return bestSpawnPos;
     }
 
-    private Vector3 RandomNavMeshPosition(Vector3 center, float radius)
+
+    public void IncreaseNumberPerWave(int value) => _numberPerWave += value;
+
+    public void IncreaseNumberPerSpawn(int value) => _numberPerSpawn += value;
+
+    public void DecreaseSpawnInterval(float value)
     {
-        Vector3 randomDirection = Random.insideUnitSphere * radius;
-        randomDirection += center;
-        NavMeshHit hit;
-        NavMesh.SamplePosition(randomDirection, out hit, radius, NavMesh.AllAreas);
-        return hit.position;
+        if (_spawnInterval >= _minSpawnInterval) _spawnInterval -= value;
     }
+
+    public void UpdateCurrentEnemiesRemaining() => CurrentEnemiesRemaining--;
+
+    public void IncreaseCurrentEnemySpeed(float value) => m_currentEnemySpeed += value;
 }

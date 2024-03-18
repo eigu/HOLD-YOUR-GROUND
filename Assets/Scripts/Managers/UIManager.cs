@@ -8,6 +8,7 @@ public class UIManager : MonoBehaviour
     public static UIManager Instance { get; private set; }
 
     private Player m_playerEntity;
+    private EnemySpawner m_enemySpawner;
     private PowerUpInfo m_currentPowerUpInfo;
 
     [SerializeField] private IntVariableSO _killCount;
@@ -18,8 +19,13 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Image[] _killCountBar;
     [SerializeField] private GameObject _powerUpButton;
     [SerializeField] private GameObject _powerUpHUD;
+    [SerializeField] private Image _powerUpHUDTimer;
+
+    [SerializeField] private TextMeshProUGUI _enemyWave;
+    [SerializeField] private TextMeshProUGUI _enemyRemaining;
 
     [SerializeField] private Image[] _crosshair;
+    [SerializeField] private GameObject _hitmarker;
 
     private float lerpSpeed = 3f;
 
@@ -35,6 +41,7 @@ public class UIManager : MonoBehaviour
     {
         m_playerEntity = FindObjectOfType<Player>();
         m_currentPowerUpInfo = FindObjectOfType<PowerUpInfo>();
+        m_enemySpawner = FindObjectOfType<EnemySpawner>();
 
         Time.timeScale = 1;
 
@@ -51,6 +58,8 @@ public class UIManager : MonoBehaviour
     private void UpdatePlayerUI(Player playerScript)
     {
         _playerHPText.text = "HP: " + playerScript.CurrentHP;
+        _enemyWave.text = "Wave: " + m_enemySpawner.CurrentWave;
+        _enemyRemaining.text = "Enemies: " + m_enemySpawner.CurrentEnemiesRemaining;
 
         HealthBarFiller();
         HealthBarColorChanger();
@@ -88,11 +97,16 @@ public class UIManager : MonoBehaviour
     {
         for (int i = 0; i < _killCountBar.Length; i++)
         {
-            _killCountBar[i].enabled = !DisplayKillCounter(_killCount.Value, i);
+            _killCountBar[i].enabled = DisplayKillCounter(_killCount.Value, i);
         }
 
         if (_killCount.Value >= m_currentPowerUpInfo.Cost) _powerUpButton.SetActive(true);
         if (_killCount.Value < m_currentPowerUpInfo.Cost) _powerUpButton.SetActive(false);
+    }
+
+    private bool DisplayKillCounter(float killCount, int pointNumber)
+    {
+        return (pointNumber + 1) * 2 <= killCount;
     }
 
     public void CrosshairColorChanger(string bodyPart)
@@ -109,6 +123,20 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public void ShowHitmarker()
+    {
+        StartCoroutine(HitmarkerCoroutine());
+    }
+
+    private IEnumerator HitmarkerCoroutine()
+    {
+        _hitmarker.SetActive(true);
+
+        yield return new WaitForSeconds(.3f);
+
+        _hitmarker.SetActive(false);
+    }
+
     public void PowerUpUI()
     {
         StartCoroutine(PowerUpCoroutine(m_currentPowerUpInfo.Duration));
@@ -121,17 +149,12 @@ public class UIManager : MonoBehaviour
         float time = duration;
         while (time > 0)
         {
-            _powerUpHUD.GetComponent<Image>().fillAmount = time / duration;
+            _powerUpHUDTimer.fillAmount = time / duration;
             time -= Time.deltaTime;
             yield return null;
         }
 
         _powerUpHUD.SetActive(false);
-    }
-
-    private bool DisplayKillCounter(float killCount, int pointNumber)
-    {
-        return (pointNumber >= killCount);
     }
 
     private void HideCursor()

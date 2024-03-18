@@ -2,11 +2,10 @@ using UnityEngine;
 
 public class Entity : MonoBehaviour
 {
-    [field: SerializeField] public int MaxHP { get; private set; }
-    [field:SerializeField] public int CurrentHP { get; private set; }
-
-    [SerializeField]
-    protected private float _speed;
+    [field: SerializeField] public int MaxHP { get; set; }
+    [field: SerializeField] public int CurrentHP { get; set; }
+    [field: SerializeField] public float MaxSpeed { get; set; }
+    [field: SerializeField] public float CurrentSpeed { get; set; }
 
     protected virtual void Start()
     {
@@ -20,10 +19,9 @@ public class Entity : MonoBehaviour
 
     public virtual void DamageEntity(int damage)
     {
-        if (CurrentHP > 0)
-        {
-            CurrentHP -= damage;
-        }
+        if (CurrentHP > 0) CurrentHP -= damage;
+
+        CurrentHP = Mathf.Clamp(CurrentHP, 0, MaxHP);
     }
 
     private void OnTriggerEnter(Collider other)

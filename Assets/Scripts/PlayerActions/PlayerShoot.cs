@@ -16,7 +16,9 @@ public class PlayerShoot : MonoBehaviour
 
     [SerializeField] private GameEventSO _onPlayerShoot;
     [SerializeField] private GameEventSO _onHeadTargetted;
+    [SerializeField] private GameEventSO _onHeadShot;
     [SerializeField] private GameEventSO _onBodyTargetted;
+    [SerializeField] private GameEventSO _onBodyShot;
     [SerializeField] private GameEventSO _onNothingTargetted;
 
     [SerializeField] private PlayerShake _playerShake;
@@ -107,12 +109,14 @@ public class PlayerShoot : MonoBehaviour
 
         if (hit.collider != null)
         {
-            Instantiate(_impact, hit.point, Quaternion.LookRotation(hit.normal));
-
             if (hit.collider.CompareTag("EnemyHead") ||
                 hit.collider.CompareTag("EnemyBody"))
             {
                 DamageEnemy(hit.collider);
+            }
+            else
+            {
+                Instantiate(_impact, hit.point, Quaternion.LookRotation(hit.normal));
             }
         }
 
@@ -125,9 +129,16 @@ public class PlayerShoot : MonoBehaviour
 
         if (enemy == null) return;
 
-        if (collider.CompareTag("EnemyHead")) enemy.DamageEntity(_headDamage);
+        if (collider.CompareTag("EnemyHead"))
+        {
+            _onHeadShot?.TriggerEvent();
+            enemy.DamageEntity(_headDamage);
+        }
 
-        if (collider.CompareTag("EnemyBody")) enemy.DamageEntity(_bodyDamage);
-
+        if (collider.CompareTag("EnemyBody"))
+        {
+            _onBodyShot?.TriggerEvent();
+            enemy.DamageEntity(_bodyDamage);
+        }
     }
 }

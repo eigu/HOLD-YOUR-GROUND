@@ -7,17 +7,24 @@ public class AutoAim : PowerUpInfo
 
     public override void Use(Transform playerTransform)
     {
+
+
         if (LockedEnemy == null)
         {
             LockedEnemy = FindNewEnemy(playerTransform);
         }
     }
 
+    public override void End()
+    {
+        LockedEnemy = null;
+    }
+
     private Transform FindNewEnemy(Transform playerTransform)
     {
         Camera mainCamera = Camera.main;
 
-        Vector3 extents = new Vector3(Screen.width * .3f, Screen.height * .3f, 0f);
+        Vector3 extents = new(Screen.width * .5f, Screen.height * .5f, 0f);
 
         RaycastHit[] hits = Physics.BoxCastAll(mainCamera.transform.position, extents, mainCamera.transform.forward, mainCamera.transform.rotation, Mathf.Infinity);
 

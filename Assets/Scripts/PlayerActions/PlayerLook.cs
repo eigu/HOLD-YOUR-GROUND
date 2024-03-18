@@ -6,7 +6,6 @@ public class PlayerLook : MonoBehaviour
 
     [SerializeField] private Vector3 _playerOrientation;
     [SerializeField] private Transform _cameraHolder;
-    [SerializeField] private Transform _playerHand;
 
     [SerializeField, Range(0, 2)] private float _sensitivity;
     [SerializeField, Range(0, 100)] private float _smoothing;
@@ -21,7 +20,6 @@ public class PlayerLook : MonoBehaviour
     private void Update()
     {
         Look();
-        HandAim();
     }
 
     private void Look()
@@ -34,15 +32,13 @@ public class PlayerLook : MonoBehaviour
 
         if (lockedEnemy != null)
         {
-            Vector3 lookDirection = lockedEnemy.position - _cameraHolder.position;
+            Vector3 lookDirection = (lockedEnemy.position - _cameraHolder.position).normalized;
 
-            float horizontalAngle = Vector3.Angle(_cameraHolder.forward, new Vector3(lookDirection.x, 0, lookDirection.z));
-            int rotationDirection = Vector3.Cross(_cameraHolder.forward, lookDirection).y > 0 ? 1 : -1;
+            float horizontalAngle = Vector3.SignedAngle(_cameraHolder.forward, new Vector3(lookDirection.x, 0, lookDirection.z), Vector3.up);
+            float verticalAngle = Vector3.SignedAngle(_cameraHolder.forward, lookDirection, Vector3.Cross(Vector3.up, _cameraHolder.forward));
 
-            float verticalAngle = Vector3.Angle(_cameraHolder.up, new Vector3(0, lookDirection.y, 0));
-
-            _playerOrientation.x += horizontalAngle * rotationDirection * Time.deltaTime * 5f;
-            _playerOrientation.y = verticalAngle * Time.deltaTime * 5f;
+            _playerOrientation.x += horizontalAngle * Time.deltaTime * 10f;
+            _playerOrientation.y += verticalAngle * Time.deltaTime * 10f;
         }
         else
         {
@@ -55,13 +51,5 @@ public class PlayerLook : MonoBehaviour
 
         _cameraHolder.rotation = Quaternion.Euler(new Vector3(_playerOrientation.y, transform.rotation.eulerAngles.y, 0));
         transform.rotation = Quaternion.Euler(new Vector3(0, _playerOrientation.x, 0));
-    }
-
-    private void HandAim()
-    {
-        if (_playerHand != null)
-        {
-            _playerHand.LookAt(InputManager.Instance.GetCrosshairPoint());
-        }
     }
 }
