@@ -56,7 +56,6 @@ public class EnemySpawner : MonoBehaviour
             SpawnEnemies();
 
             m_currentSpawnTime = _spawnInterval;
-            m_currentEnemySpawn--;
         }
 
         if (CurrentWave % 5 == 0)
@@ -114,6 +113,8 @@ public class EnemySpawner : MonoBehaviour
     {
         for (int i = 0; i < _numberPerSpawn; i++)
         {
+            if (m_currentEnemySpawn <= 0) break;
+            
             Vector3 randomSpawnPos = FindValidSpawnPosition();
 
             if (randomSpawnPos != Vector3.zero)
@@ -133,6 +134,8 @@ public class EnemySpawner : MonoBehaviour
                     enemyEntity.CurrentSpeed = m_currentEnemySpeed;
                 }
             }
+
+            m_currentEnemySpawn--;
         }
     }
 
