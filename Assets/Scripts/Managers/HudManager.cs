@@ -74,7 +74,13 @@ public class HudManager : MonoBehaviour
                 Time.timeScale = 0;
                 ShowCursor();
             }
-            // Time.timeScale = menuPanel.activeSelf ? 0f : 1f;
+             //Time.timeScale = inGamePannel.activeSelf ? 0f : 1f;
+        }
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            inGamePannel.SetActive(false);
+            Time.timeScale = 1;
+            HideCursor();
         }
     }
 
@@ -224,4 +230,5 @@ public class HudManager : MonoBehaviour
             Debug.LogWarning("AudioSource2 or VolumeSlider2 is not assigned!");
         }
     }
+    
 }
