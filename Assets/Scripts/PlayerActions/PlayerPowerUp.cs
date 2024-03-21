@@ -37,7 +37,7 @@ public class PlayerPowerUp : MonoBehaviour
     {
         if (_currentPowerUpInfo == null) return;
 
-        StartCoroutine(PowerUpStartCoroutine(_currentPowerUpInfo.OnPowerUpAnimation.Duration));
+        StartCoroutine(PowerUpStartCoroutine(.5f));
     }
 
     private IEnumerator PowerUpStartCoroutine(float duration)
@@ -47,7 +47,7 @@ public class PlayerPowerUp : MonoBehaviour
 
         float time = 0;
 
-        while (time < duration - (duration * .5f))
+        while (time < duration)
         {
             time += Time.deltaTime;
             yield return null;

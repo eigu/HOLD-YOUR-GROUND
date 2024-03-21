@@ -6,7 +6,9 @@ public abstract class PowerUpInfo : MonoBehaviour
     public GameEventSO OnPowerUp;
     public float Duration;
     public int Cost;
-    public TransformAnimationSO OnPowerUpAnimation;
+
+    public TransformAnimationSO OnGunDrawIn;
+    public TransformAnimationSO OnGunDrawOut;
 
     public abstract void Use(Transform playerTransform);
     public abstract void End();

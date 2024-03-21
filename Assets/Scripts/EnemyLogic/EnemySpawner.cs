@@ -15,9 +15,9 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private float _minSpawnInterval;
     [SerializeField] private int _numberPerSpawn;
 
-    [SerializeField] private GameEventSO _onWaveEnd;
-    [SerializeField] private GameEventSO _onWaveFiveEnd;
-    [SerializeField] private GameEventSO _onWaveTenEnd;
+    [SerializeField] private GameEventSO _onWaveTier1End;
+    [SerializeField] private GameEventSO _onWaveTier2End;
+    [SerializeField] private GameEventSO _onWaveTier3End;
 
     private float m_currentSpawnTime;
     private int m_currentEnemySpawn;
@@ -58,11 +58,11 @@ public class EnemySpawner : MonoBehaviour
             m_currentSpawnTime = _spawnInterval;
         }
 
-        if (CurrentWave % 5 == 0)
+        if (CurrentWave % 2 == 0)
         {
             if (!m_triggeredAtWaveFive)
             {
-                _onWaveFiveEnd?.TriggerEvent();
+                _onWaveTier2End?.TriggerEvent();
                 m_triggeredAtWaveFive = true;
             }
         }
@@ -71,11 +71,11 @@ public class EnemySpawner : MonoBehaviour
             m_triggeredAtWaveFive = false;
         }
 
-        if (CurrentWave % 10 == 0)
+        if (CurrentWave % 3 == 0)
         {
             if (!m_triggeredAtWaveTen)
             {
-                _onWaveTenEnd?.TriggerEvent();
+                _onWaveTier3End?.TriggerEvent();
                 m_triggeredAtWaveTen = true;
             }
         }
@@ -97,7 +97,7 @@ public class EnemySpawner : MonoBehaviour
 
     private void OnWaveEnd()
     {
-        _onWaveEnd?.TriggerEvent();
+        _onWaveTier1End?.TriggerEvent();
     }
 
     private IEnumerator WaveDelayCoroutine(float duration)

@@ -30,7 +30,7 @@ public class InputManager : MonoBehaviour
   {
     InputAction playerShoot = m_playerInput.actions.FindAction("Shoot");
 
-    return playerShoot.triggered;
+    return playerShoot.IsPressed();
   }
 
   public bool CheckIfPlayerIsUsingPowerUp()

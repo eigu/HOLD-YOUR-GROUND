@@ -27,24 +27,9 @@ public class PlayerLook : MonoBehaviour
         Vector3 mouseDelta = InputManager.Instance.GetMouseDelta();
         mouseDelta *= _sensitivity;
         m_smoothedDelta = Vector2.Lerp(m_smoothedDelta, mouseDelta, 1f / _smoothing);
-
-        Transform lockedEnemy = m_currentPowerUpInfo.GetComponent<AutoAim>().LockedEnemy;
-
-        if (lockedEnemy != null)
-        {
-            Vector3 lookDirection = (lockedEnemy.position - _cameraHolder.position).normalized;
-
-            float horizontalAngle = Vector3.SignedAngle(_cameraHolder.forward, new Vector3(lookDirection.x, 0, lookDirection.z), Vector3.up);
-            float verticalAngle = Vector3.SignedAngle(_cameraHolder.forward, lookDirection, Vector3.Cross(Vector3.up, _cameraHolder.forward));
-
-            _playerOrientation.x += horizontalAngle * Time.deltaTime * 10f;
-            _playerOrientation.y += verticalAngle * Time.deltaTime * 10f;
-        }
-        else
-        {
-            _playerOrientation.x += mouseDelta.x;
-            _playerOrientation.y -= mouseDelta.y;
-        }
+     
+        _playerOrientation.x += mouseDelta.x;
+        _playerOrientation.y -= mouseDelta.y;
 
         _playerOrientation.x = Mathf.Repeat(_playerOrientation.x, 360f);
         _playerOrientation.y = Mathf.Clamp(_playerOrientation.y, -30f, 30f);
