@@ -76,7 +76,7 @@ public class HudManager : MonoBehaviour
             }
              //Time.timeScale = inGamePannel.activeSelf ? 0f : 1f;
         }
-        if (Input.GetKeyDown(KeyCode.B))
+        if (Input.GetKeyUp(KeyCode.Escape))
         {
             inGamePannel.SetActive(false);
             Time.timeScale = 1;
